@@ -1,0 +1,32 @@
+{
+  "app": "camera-plot",
+  "version": 4,
+  "camsVisible": true,
+  "stage": { "w": 12, "d": 8 },
+  "pdfMeta": { "title": "CAMERA PLOT", "sub": "ステージ配置図 / 機材構成" },
+  "seq": 2,
+  "pseq": 2,
+  "oseq": 0,
+  "cams": [
+    {
+      "name": "CAM A", "x": 6, "y": 10.5, "angle": 0, "color": "#f2a53a",
+      "sensor": "full", "sw": 36, "sh": 24,
+      "zoom": false, "focal": 35, "fmin": 24, "fmax": 70,
+      "ap": 2.8, "focusDist": 5, "dof": true, "range": 0
+    },
+    {
+      "name": "CAM B", "x": 14.5, "y": -1.5, "angle": 237, "color": "#4cc3ff",
+      "sensor": "s35", "sw": 24.9, "sh": 14,
+      "zoom": true, "focal": 50, "fmin": 24, "fmax": 70,
+      "ap": 4, "focusDist": 6.5, "dof": true, "range": 0
+    }
+  ],
+  "subjects": [
+    { "kind": "obj", "name": "ドラム", "x": 6, "y": 2.2, "category": "drums", "hasSize": true, "w": 2, "d": 1.6, "rot": 0, "visible": true },
+    { "kind": "obj", "name": "キーボード", "x": 2.5, "y": 4, "category": "keyboard", "hasSize": true, "w": 1.4, "d": 0.4, "rot": 75, "visible": true },
+    { "kind": "obj", "name": "ギターアンプ", "x": 10, "y": 2.5, "category": "gamp", "hasSize": true, "w": 0.7, "d": 0.4, "rot": 345, "visible": true },
+    { "kind": "obj", "name": "マイク", "x": 6, "y": 5.5, "category": "mic", "hasSize": false, "w": 0.5, "d": 0.5, "rot": 0, "visible": true },
+    { "kind": "person", "name": "Vo", "x": 6, "y": 5.1, "category": "other", "hasSize": false, "w": 1, "d": 0.6, "rot": 0, "visible": true },
+    { "kind": "person", "name": "Gt", "x": 9.2, "y": 4.2, "category": "other", "hasSize": false, "w": 1, "d": 0.6, "rot": 0, "visible": true }
+  ]
+}
