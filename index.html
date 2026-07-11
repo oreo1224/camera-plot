@@ -127,6 +127,9 @@ select{width:auto;max-width:186px;cursor:pointer}
 .mrow label{font-size:11px;color:var(--dim);letter-spacing:.12em}
 .mrow input{width:100%}
 .macts{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.merr{font-size:11px;color:#ff6b6b;margin-top:3px}
+.mrow input.err{border-color:#ff6b6b;outline-color:#ff6b6b}
+.req{font-size:10px;color:var(--dim);margin-left:4px;letter-spacing:0}
 @media(max-width:720px){
   #panel{left:10px;right:10px;top:auto;bottom:10px;width:auto;max-height:56%}
   #hint{display:none}
@@ -250,7 +253,7 @@ select{width:auto;max-width:186px;cursor:pointer}
   <div class="mbox">
     <h3>PDFの表題</h3>
     <div class="mnote">シート左上に印字される内容です</div>
-    <div class="mrow"><label>タイトル</label><input id="pdfTitleIn" type="text" placeholder="CAMERA PLOT"></div>
+    <div class="mrow"><label>タイトル<span class="req">（必須）</span></label><input id="pdfTitleIn" type="text" placeholder="例：CAMERA PLOT"><div id="pdfTitleErr" class="merr" hidden>タイトルを入力してください</div></div>
     <div class="mrow"><label>サブタイトル（空欄可）</label><input id="pdfSubIn" type="text" placeholder="ステージ配置図 / 機材構成"></div>
     <div class="macts">
       <button id="pdfCancel" class="btn">キャンセル</button>
@@ -1742,7 +1745,14 @@ function doExportPDF(){
 }
 $('pdfCancel').addEventListener('click',closePdfModal);
 $('pdfGo').addEventListener('click',function(){
-  pdfMeta.title=$('pdfTitleIn').value.trim()||'CAMERA PLOT';
+  var titleVal=$('pdfTitleIn').value.trim();
+  if(!titleVal){
+    $('pdfTitleIn').classList.add('err');
+    $('pdfTitleErr').hidden=false;
+    $('pdfTitleIn').focus();
+    return;
+  }
+  pdfMeta.title=titleVal;
   pdfMeta.sub=$('pdfSubIn').value.trim();
   closePdfModal();
   doExportPDF();
@@ -1755,6 +1765,12 @@ function modalEnter(e){
 }
 $('pdfTitleIn').addEventListener('keydown',modalEnter);
 $('pdfSubIn').addEventListener('keydown',modalEnter);
+$('pdfTitleIn').addEventListener('input',function(){
+  if(this.value.trim()){
+    this.classList.remove('err');
+    $('pdfTitleErr').hidden=true;
+  }
+});
 
 $('camsChk').addEventListener('change',function(){
   camsVisible=$('camsChk').checked;
