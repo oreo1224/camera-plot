@@ -1,32 +1,149 @@
 {
   "app": "camera-plot",
   "version": 4,
+  "stage": {
+    "w": 8,
+    "d": 5
+  },
   "camsVisible": true,
-  "stage": { "w": 12, "d": 8 },
-  "pdfMeta": { "title": "CAMERA PLOT", "sub": "ステージ配置図 / 機材構成" },
-  "seq": 2,
-  "pseq": 2,
-  "oseq": 0,
-  "cams": [
+  "cams": [],
+  "subjects": [
     {
-      "name": "CAM A", "x": 6, "y": 10.5, "angle": 0, "color": "#f2a53a",
-      "sensor": "full", "sw": 36, "sh": 24,
-      "zoom": false, "focal": 35, "fmin": 24, "fmax": 70,
-      "ap": 2.8, "focusDist": 5, "dof": true, "range": 0
+      "id": 9,
+      "kind": "obj",
+      "name": "ドラム",
+      "x": 3.57,
+      "y": 0.9,
+      "category": "drums",
+      "hasSize": true,
+      "w": 2,
+      "d": 1.6,
+      "rot": 0,
+      "visible": true
     },
     {
-      "name": "CAM B", "x": 14.5, "y": -1.5, "angle": 237, "color": "#4cc3ff",
-      "sensor": "s35", "sw": 24.9, "sh": 14,
-      "zoom": true, "focal": 50, "fmin": 24, "fmax": 70,
-      "ap": 4, "focusDist": 6.5, "dof": true, "range": 0
+      "id": 10,
+      "kind": "obj",
+      "name": "MODX 8",
+      "x": 5.97,
+      "y": 3.47,
+      "category": "keyboard",
+      "hasSize": true,
+      "w": 1.25,
+      "d": 0.25,
+      "rot": 43,
+      "visible": true
+    },
+    {
+      "id": 11,
+      "kind": "obj",
+      "name": "マーシャル",
+      "x": 5.78,
+      "y": 1.38,
+      "category": "gamp",
+      "hasSize": true,
+      "w": 0.7,
+      "d": 0.4,
+      "rot": 41.6,
+      "visible": true
+    },
+    {
+      "id": 12,
+      "kind": "obj",
+      "name": "ベースアンプ",
+      "x": 1.37,
+      "y": 2.36,
+      "category": "bamp",
+      "hasSize": true,
+      "w": 0.6,
+      "d": 0.5,
+      "rot": 334,
+      "visible": true
+    },
+    {
+      "id": 13,
+      "kind": "obj",
+      "name": "マイク",
+      "x": 4.32,
+      "y": 4.7,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
+    },
+    {
+      "id": 14,
+      "kind": "obj",
+      "name": "マイク 2",
+      "x": 5.29,
+      "y": 2.16,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
+    },
+    {
+      "id": 15,
+      "kind": "obj",
+      "name": "マイク 3",
+      "x": 1.79,
+      "y": 3.24,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
+    },
+    {
+      "id": 17,
+      "kind": "obj",
+      "name": "DX7",
+      "x": 5.95,
+      "y": 3.69,
+      "category": "keyboard",
+      "hasSize": true,
+      "w": 0.85,
+      "d": 0.25,
+      "rot": 43,
+      "visible": true
+    },
+    {
+      "id": 18,
+      "kind": "obj",
+      "name": "MOXF 6",
+      "x": 6.93,
+      "y": 3.57,
+      "category": "keyboard",
+      "hasSize": true,
+      "w": 1.05,
+      "d": 0.25,
+      "rot": 312.8,
+      "visible": true
+    },
+    {
+      "id": 19,
+      "kind": "obj",
+      "name": "ジャズコーラス",
+      "x": 6.03,
+      "y": 1.48,
+      "category": "gamp",
+      "hasSize": true,
+      "w": 0.7,
+      "d": 0.4,
+      "rot": 41.6,
+      "visible": true
     }
   ],
-  "subjects": [
-    { "kind": "obj", "name": "ドラム", "x": 6, "y": 2.2, "category": "drums", "hasSize": true, "w": 2, "d": 1.6, "rot": 0, "visible": true },
-    { "kind": "obj", "name": "キーボード", "x": 2.5, "y": 4, "category": "keyboard", "hasSize": true, "w": 1.4, "d": 0.4, "rot": 75, "visible": true },
-    { "kind": "obj", "name": "ギターアンプ", "x": 10, "y": 2.5, "category": "gamp", "hasSize": true, "w": 0.7, "d": 0.4, "rot": 345, "visible": true },
-    { "kind": "obj", "name": "マイク", "x": 6, "y": 5.5, "category": "mic", "hasSize": false, "w": 0.5, "d": 0.5, "rot": 0, "visible": true },
-    { "kind": "person", "name": "Vo", "x": 6, "y": 5.1, "category": "other", "hasSize": false, "w": 1, "d": 0.6, "rot": 0, "visible": true },
-    { "kind": "person", "name": "Gt", "x": 9.2, "y": 4.2, "category": "other", "hasSize": false, "w": 1, "d": 0.6, "rot": 0, "visible": true }
-  ]
+  "seq": 9,
+  "pseq": 4,
+  "oseq": 10,
+  "pdfMeta": {
+    "title": "闇鍋",
+    "sub": "ステージ配置図 / 機材構成"
+  }
 }
