@@ -164,7 +164,7 @@ select{width:auto;max-width:186px;cursor:pointer}
     <h5>物体レイヤー</h5>
     <div id="lyrList"></div>
   </div>
-  <div id="hint">ドラッグ＝移動 ／ ○＝回転（Shiftで15°）／ ◆＝フォーカス位置 ／ 余白ダブルクリック＝カメラ追加 ／ ホイール＝拡大縮小</div>
+  <div id="hint">ドラッグ＝移動 ／ ○＝回転（Shiftで15°）／ ◆＝フォーカス位置 ／ 余白ダブルクリック＝カメラ追加 ／ ホイール＝拡大縮小 ／ Ctrl+ホイール＝上下移動 ／ Shift+ホイール＝左右移動</div>
   <aside id="panel">
     <div class="phead">
       <span id="colorDot"></span>
@@ -826,7 +826,15 @@ function zoomAt(px,py,k){
 }
 cv.addEventListener('wheel',function(e){
   e.preventDefault();
-  zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*0.0015));
+  if(e.ctrlKey){
+    view.y-=e.deltaY*0.8;
+    scheduleDraw();
+  }else if(e.shiftKey){
+    view.x-=e.deltaY*0.8;
+    scheduleDraw();
+  }else{
+    zoomAt(e.offsetX,e.offsetY,Math.exp(-e.deltaY*0.0015));
+  }
 },{passive:false});
 
 /* ===== ヒットテスト ===== */
