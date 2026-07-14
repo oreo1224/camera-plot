@@ -2,7 +2,7 @@
   "app": "camera-plot",
   "version": 4,
   "stage": {
-    "w": 8,
+    "w": 6.5,
     "d": 5
   },
   "camsVisible": true,
