@@ -2,17 +2,17 @@
   "app": "camera-plot",
   "version": 4,
   "stage": {
-    "w": 8,
-    "d": 5
+    "w": 6.5,
+    "d": 4
   },
   "camsVisible": true,
   "cams": [],
   "subjects": [
     {
-      "id": 9,
+      "id": 1,
       "kind": "obj",
       "name": "ドラム",
-      "x": 3.57,
+      "x": 1.97,
       "y": 0.9,
       "category": "drums",
       "hasSize": true,
@@ -22,11 +22,11 @@
       "visible": true
     },
     {
-      "id": 10,
+      "id": 2,
       "kind": "obj",
       "name": "MODX 8",
-      "x": 5.97,
-      "y": 3.47,
+      "x": 5.07,
+      "y": 3,
       "category": "keyboard",
       "hasSize": true,
       "w": 1.25,
@@ -35,11 +35,11 @@
       "visible": true
     },
     {
-      "id": 11,
+      "id": 3,
       "kind": "obj",
       "name": "マーシャル",
-      "x": 5.78,
-      "y": 1.38,
+      "x": 3.85,
+      "y": 1.09,
       "category": "gamp",
       "hasSize": true,
       "w": 0.7,
@@ -48,11 +48,11 @@
       "visible": true
     },
     {
-      "id": 12,
+      "id": 4,
       "kind": "obj",
       "name": "ベースアンプ",
-      "x": 1.37,
-      "y": 2.36,
+      "x": 0.49,
+      "y": 2.46,
       "category": "bamp",
       "hasSize": true,
       "w": 0.6,
@@ -61,11 +61,11 @@
       "visible": true
     },
     {
-      "id": 13,
+      "id": 5,
       "kind": "obj",
-      "name": "マイク",
-      "x": 4.32,
-      "y": 4.7,
+      "name": "キーボ",
+      "x": 5.51,
+      "y": 3.07,
       "category": "mic",
       "hasSize": false,
       "w": 1,
@@ -74,11 +74,11 @@
       "visible": true
     },
     {
-      "id": 14,
+      "id": 6,
       "kind": "obj",
-      "name": "マイク 2",
-      "x": 5.29,
-      "y": 2.16,
+      "name": "ベース",
+      "x": 0.8,
+      "y": 3.26,
       "category": "mic",
       "hasSize": false,
       "w": 1,
@@ -87,24 +87,11 @@
       "visible": true
     },
     {
-      "id": 15,
-      "kind": "obj",
-      "name": "マイク 3",
-      "x": 1.79,
-      "y": 3.24,
-      "category": "mic",
-      "hasSize": false,
-      "w": 1,
-      "d": 0.6,
-      "rot": 0,
-      "visible": true
-    },
-    {
-      "id": 17,
+      "id": 7,
       "kind": "obj",
       "name": "DX7",
-      "x": 5.95,
-      "y": 3.69,
+      "x": 4.91,
+      "y": 3.11,
       "category": "keyboard",
       "hasSize": true,
       "w": 0.85,
@@ -113,11 +100,11 @@
       "visible": true
     },
     {
-      "id": 18,
+      "id": 8,
       "kind": "obj",
       "name": "MOXF 6",
-      "x": 6.93,
-      "y": 3.57,
+      "x": 5.92,
+      "y": 3,
       "category": "keyboard",
       "hasSize": true,
       "w": 1.05,
@@ -126,22 +113,74 @@
       "visible": true
     },
     {
-      "id": 19,
+      "id": 9,
       "kind": "obj",
       "name": "ジャズコーラス",
-      "x": 6.03,
-      "y": 1.48,
+      "x": 4.91,
+      "y": 1.35,
       "category": "gamp",
       "hasSize": true,
       "w": 0.7,
       "d": 0.4,
       "rot": 41.6,
       "visible": true
+    },
+    {
+      "id": 10,
+      "kind": "obj",
+      "name": "ドラム",
+      "x": 1.98,
+      "y": 1.13,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
+    },
+    {
+      "id": 11,
+      "kind": "obj",
+      "name": "ヴォーカル",
+      "x": 2.69,
+      "y": 3.74,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
+    },
+    {
+      "id": 12,
+      "kind": "obj",
+      "name": "ギター②",
+      "x": 4.41,
+      "y": 1.96,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
+    },
+    {
+      "id": 13,
+      "kind": "obj",
+      "name": "ギター①",
+      "x": 3.45,
+      "y": 1.91,
+      "category": "mic",
+      "hasSize": false,
+      "w": 1,
+      "d": 0.6,
+      "rot": 0,
+      "visible": true
     }
   ],
   "seq": 9,
-  "pseq": 0,
-  "oseq": 10,
+  "pseq": 1,
+  "oseq": 11,
   "pdfMeta": {
     "title": "",
     "sub": "ステージ配置図 / 機材構成"
