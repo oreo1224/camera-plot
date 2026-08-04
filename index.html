@@ -152,6 +152,7 @@ select{width:auto;max-width:186px;cursor:pointer}
   <button id="addOBtn" class="btn">＋ 物体</button>
   <button id="fitBtn" class="btn">全体表示</button>
   <label class="chkgrp"><input id="camsChk" type="checkbox" checked>カメラ表示</label>
+  <label class="chkgrp"><input id="labelsChk" type="checkbox" checked>ラベル表示</label>
   <span class="spacer"></span>
   <button id="saveBtn" class="btn">保存</button>
   <button id="loadBtn" class="btn">読込</button>
@@ -282,6 +283,7 @@ var stage={w:12,d:8};
 var cams=[], sel=null, seq=0, idc=0;
 var subjects=[], selS=null, pseq=0, oseq=0;
 var camsVisible=true;
+var labelsVisible=true;
 var exporting=false;
 var view={s:50,x:0,y:0};
 var SENSOR_LABELS={full:'フルサイズ',apsc:'APS-C',s35:'Super 35',mft:'MFT',one:'1型',s16:'Super 16',phone:'1/2.3型',custom:'カスタム'};
@@ -312,7 +314,12 @@ function rectOverlap(a,b){
 }
 function labelCandidates(l){
   var w=l.w,h=l.h;
-  return [[0,0],[0,-h-20],[12,-h/2],[-w-12,-h/2],[0,h+16],[w/2+16,10],[-w/2-16,10]];
+  return [
+    [0,0],[0,-h-20],[w/2+16,-h/2],[-w/2-16,-h/2],[0,h+16],
+    [w+24,0],[-w-24,0],[w/2+22,-h-22],[-w/2-22,-h-22],
+    [w/2+22,h+16],[-w/2-22,h+16],[0,-h*2-26],[0,h*2+22],
+    [w+34,-h-8],[-w-34,-h-8],[w+34,h+8],[-w-34,h+8]
+  ];
 }
 function layoutLabels(labels,bw,bh){
   var placed=[],i,j,l,cands,best,bestScore,c,r,score,over;
@@ -654,6 +661,7 @@ function drawSubj(s){
 }
 function drawCanvasLabels(){
   var labels=[],i,c,s,p,text,w,ly;
+  if(!labelsVisible){labelHits=[];return;}
   if(camsVisible)for(i=0;i<cams.length;i++){
     c=cams[i];p=w2s(c.x,c.y);text=c.name+'  '+Math.round(c.focal)+'mm';
     ctx.font="11px 'Space Grotesk','Noto Sans JP',sans-serif";
@@ -1481,25 +1489,40 @@ function buildSheet(){
   var ds=dt.getFullYear()+'/'+(dt.getMonth()+1)+'/'+dt.getDate();
   g.textAlign='right';
   g.fillText('ステージ '+fmt(stage.w)+' × '+fmt(stage.d)+' m　　'+ds,W-M,M+34);
-  /* 配置図フレーム（ステージ中心を枠中心に固定し、全体が入る縮尺に） */
+  /* 配置図フレーム（ステージを最大化し、配置全体の上下バランスで位置決め） */
   var fx=M, fy=M+62, fw=W-2*M, fh=Math.round(H*0.45);
   var ccx=stage.w/2, ccy=stage.d/2, i, c, s;
-  var hx=stage.w/2+0.8, hy=stage.d/2+0.8;
+  var bx0=0, bx1=stage.w, cy0=0, cy1=stage.d;
   if(camsVisible)for(i=0;i<cams.length;i++){
     c=cams[i];
-    hx=Math.max(hx,Math.abs(c.x-ccx)+1.5);
-    hy=Math.max(hy,Math.abs(c.y-ccy)+1.5);
+    /* 画角ではなく、カメラ本体＋番号円が収まる最小限の余白 */
+    bx0=Math.min(bx0,c.x-0.35);
+    bx1=Math.max(bx1,c.x+0.35);
+    cy0=Math.min(cy0,c.y-0.35);
+    cy1=Math.max(cy1,c.y+0.35);
   }
   for(i=0;i<subjects.length;i++){
     s=subjects[i];
     if(s.kind!=='person'&&s.visible===false)continue;
     var sext=s.kind==='person'?0.7:(s.hasSize?Math.max(s.w,s.d)/2+0.5:0.8);
-    hx=Math.max(hx,Math.abs(s.x-ccx)+sext);
-    hy=Math.max(hy,Math.abs(s.y-ccy)+sext);
+    bx0=Math.min(bx0,s.x-sext);
+    bx1=Math.max(bx1,s.x+sext);
+    cy0=Math.min(cy0,s.y-sext);
+    cy1=Math.max(cy1,s.y+sext);
   }
   var pad=48;
-  var sc=Math.min((fw/2-pad)/hx,(fh/2-pad)/hy);
-  var ox=fx+fw/2-ccx*sc, oy=fy+fh/2-ccy*sc;
+  /* ステージを左右中央に固定し、カメラ番号まで入る最大縮尺にする */
+  var xRadius=Math.max(Math.abs(bx0-ccx),Math.abs(bx1-ccx));
+  var scX=(fw/2-pad)/xRadius;
+  var scY=(fh-pad*2)/(cy1-cy0);
+  var sc=Math.min(scX,scY);
+  var ox=fx+fw/2-ccx*sc;
+  var stageH=stage.d*sc;
+  var contentCenterY=(cy0+cy1)/2;
+  var desiredTop=fh/2-contentCenterY*sc;
+  var topGap=Math.max(12,Math.min(fh-stageH-12,desiredTop));
+  /* 配置全体を上下中央へ。ステージ単体ならステージが中央になる */
+  var oy=fy+topGap;
   function T(wx,wy){return [ox+wx*sc, oy+wy*sc];}
   g.save();
   g.beginPath();
@@ -1525,11 +1548,22 @@ function buildSheet(){
   g.fillStyle=sub;
   g.font="500 13px 'Space Grotesk','Noto Sans JP',sans-serif";
   g.textAlign='center'; g.textBaseline='bottom';
-  g.fillText('STAGE '+fmt(stage.w)+' m',(sa[0]+sb[0])/2,sa[1]-7);
+  g.fillText('STAGE '+fmt(stage.w)+' m ／ 左右中央',(sa[0]+sb[0])/2,sa[1]-7);
+  /* ステージの左右中央だけを示す。奥行き方向の寸法ラベルは出さない */
   g.save();
-  g.translate(sa[0]-8,(sa[1]+sb[1])/2);
-  g.rotate(-Math.PI/2);
-  g.fillText(fmt(stage.d)+' m',0,0);
+  g.strokeStyle='#aeb7c4';
+  g.lineWidth=1;
+  g.setLineDash([6,5]);
+  g.beginPath();
+  g.moveTo((sa[0]+sb[0])/2,sa[1]);
+  g.lineTo((sa[0]+sb[0])/2,sb[1]);
+  g.stroke();
+  g.setLineDash([]);
+  g.fillStyle=sub;
+  g.font="500 11px 'Noto Sans JP',sans-serif";
+  g.textAlign='center';
+  g.textBaseline='top';
+  g.fillText('左右中央',(sa[0]+sb[0])/2,sb[1]+8);
   g.restore();
   /* カメラの画角・DoF */
   if(camsVisible)for(i=0;i<cams.length;i++){
@@ -1631,13 +1665,16 @@ function buildSheet(){
     pdfLabels.push({type:'subj',target:s,text:s.name,x:sp[0]-g.measureText(s.name).width/2,y:labY,
       w:g.measureText(s.name).width,h:15,anchorX:sp[0],anchorY:sp[1]});
   }
-  layoutLabels(pdfLabels,W,H);
-  for(i=0;i<pdfLabels.length;i++){
+  if(labelsVisible)layoutLabels(pdfLabels,W,H);
+  for(i=0;i<pdfLabels.length&&labelsVisible;i++){
     var pl=pdfLabels[i],pb=pl.box;
     if(Math.abs(pb.x-pl.x)+Math.abs(pb.y-pl.y)>4){
       g.strokeStyle='#b8c0cc';g.lineWidth=0.8;
       g.beginPath();g.moveTo(pl.anchorX,pl.anchorY);g.lineTo(pb.x+pb.w/2,pb.y+pb.h/2);g.stroke();
     }
+    /* 背景を敷いて、機材シンボルや画角線の上でも名前を読めるようにする */
+    g.fillStyle='#ffffff';
+    g.fillRect(pb.x-3,pb.y-2,pb.w+6,pb.h+4);
     g.fillStyle=ink;g.font="500 12.5px 'Noto Sans JP',sans-serif";
     g.textAlign='left';g.textBaseline='top';g.fillText(pl.text,pb.x,pb.y);
   }
@@ -1846,10 +1883,15 @@ $('camsChk').addEventListener('change',function(){
   if(!camsVisible&&sel)setSel(null);
   scheduleDraw();
 });
+$('labelsChk').addEventListener('change',function(){
+  labelsVisible=$('labelsChk').checked;
+  if(!labelsVisible)labelHits=[];
+  scheduleDraw();
+});
 
 /* ===== 保存 / 読込（JSON） ===== */
 function saveJSON(){
-  var data={app:'camera-plot',version:4,stage:stage,camsVisible:camsVisible,
+  var data={app:'camera-plot',version:5,stage:stage,camsVisible:camsVisible,labelsVisible:labelsVisible,
     cams:cams,subjects:subjects,
     seq:seq,pseq:pseq,oseq:oseq,pdfMeta:pdfMeta};
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
@@ -1929,6 +1971,8 @@ function applyState(d){
   }
   camsVisible=d.camsVisible!==false;
   $('camsChk').checked=camsVisible;
+  labelsVisible=d.labelsVisible!==false;
+  $('labelsChk').checked=labelsVisible;
   setSel(null);
   fitView();
 }
