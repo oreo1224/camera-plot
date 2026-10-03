@@ -1,7 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "camera-plot",
-  "account_id": "ed8894a9cc8527be3b803f6dd918f5a4",
+  "name": "camera-plot-dev",
   "main": "worker.js",
   "compatibility_date": "2026-07-11",
   "observability": {
@@ -14,11 +13,25 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "camera-plot-db",
-      "database_id": "984b2f11-3854-43e3-83e8-f65f888efa30",
+      "database_name": "camera-plot-db-local",
+      "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "migrations"
     }
   ],
+  "env": {
+    "production": {
+      "name": "camera-plot",
+      "account_id": "ed8894a9cc8527be3b803f6dd918f5a4",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "camera-plot-db",
+          "database_id": "984b2f11-3854-43e3-83e8-f65f888efa30",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  },
   "compatibility_flags": [
     "nodejs_compat"
   ]

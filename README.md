@@ -2,24 +2,46 @@
 
 Cloudflare Workers の Static Assets と D1 を使って、配置図をブラウザからクラウド保存できます。D1・Workers ともに小規模利用なら無料枠内で運用できます。
 
-## 本番デプロイ
+## ローカル開発
 
-Node.js 22 以降と、設定済みの Cloudflare アカウントへのアクセス権が必要です。
-本番 D1 のアカウント・データベース ID は `wrangler.jsonc` に設定済みです。
+Node.js 22 以降が必要です。ローカル D1 にマイグレーションを適用してから起動します。
+トップレベル設定は `camera-plot-dev` と無効なゼロUUIDを使う開発専用設定で、本番リソースには接続しません。
 
 ```sh
-npx wrangler login
-npx wrangler d1 migrations apply camera-plot-db --remote
-npx wrangler deploy
+npx wrangler d1 migrations apply DB --local
+npx wrangler dev
 ```
 
 Static Assets は `.assetsignore` で `index.html` と `default-layout.json` のみに限定しています。
 
-ローカル開発では、ローカル D1 にマイグレーションを適用してから起動します。
+## 本番デプロイ
+
+本番設定は `wrangler.jsonc` の `production` 環境に分離しています。本番操作には必ず `--env production` を指定します。
+PRブランチからはデプロイせず、変更を `main` にマージした後、更新済みの `main` から実行してください。
 
 ```sh
-npx wrangler d1 migrations apply camera-plot-db --local
-npx wrangler dev
+git switch main
+git pull --ff-only
+npx wrangler login
+npx wrangler d1 migrations apply DB --env production --remote
+npx wrangler deploy --env production
+```
+
+## 新しいCloudflare環境を作る場合
+
+新しいアカウントや障害復旧先へ再構築する場合は、D1を作成します。
+
+```sh
+npx wrangler login
+npx wrangler d1 create camera-plot-db
+```
+
+表示された `account_id` と `database_id` を使い、`wrangler.jsonc` の `env.production` をコピーして、例えば `recovery` という別名の環境を追加します。
+追加した環境名を指定してマイグレーションとデプロイを実行してください。
+
+```sh
+npx wrangler d1 migrations apply DB --env recovery --remote
+npx wrangler deploy --env recovery
 ```
 
 ## バンド／プロファイルの共有
