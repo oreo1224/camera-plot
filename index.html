@@ -134,8 +134,6 @@ select{width:auto;max-width:186px;cursor:pointer}
 .cloud-item:last-child{border-bottom:0}.cloud-info{flex:1;min-width:0}.cloud-info b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cloud-info small{color:var(--dim)}
 .cloud-item .btn{padding:5px 9px}.cloud-status{min-height:18px;font-size:11px;color:var(--dim)}
 .cloud-band{padding:7px 10px;background:#0a0e14;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.08em;border-bottom:1px solid var(--line)}
-.cloud-selection{min-height:18px;margin-top:8px;font-size:11px;color:var(--accent)}
-.cloud-more{display:flex;justify-content:center;padding:10px}
 .mrow input.err{border-color:#ff6b6b;outline-color:#ff6b6b}
 .req{font-size:10px;color:var(--dim);margin-left:4px;letter-spacing:0}
 @media(max-width:720px){
@@ -277,10 +275,9 @@ select{width:auto;max-width:186px;cursor:pointer}
     <div class="mnote">メンバー全員で、バンドごとの配置図を共有できます</div>
     <div class="mrow"><label>バンド名</label><input id="cloudBandIn" type="text" maxlength="80" placeholder="例：ゆるりはま"></div>
     <div class="mrow"><label>プロファイル名</label><input id="cloudNameIn" type="text" maxlength="80" placeholder="例：10月3日 ライブ撮影"></div>
-    <div id="cloudSelection" class="cloud-selection" role="status" aria-live="polite">新規プロファイルとして保存します</div>
-    <div class="macts"><button id="cloudUpdate" class="btn" disabled>読込中を上書き</button><button id="cloudSave" class="btn primary">新規保存</button></div>
+    <div class="macts"><button id="cloudSave" class="btn primary">新規保存</button></div>
     <div id="cloudList" class="cloud-list"><div class="cloud-empty">読み込み中…</div></div>
-    <div id="cloudStatus" class="cloud-status" role="status" aria-live="polite"></div>
+    <div id="cloudStatus" class="cloud-status"></div>
     <div class="macts"><button id="cloudClose" class="btn">閉じる</button></div>
   </div>
 </div>
@@ -2006,7 +2003,6 @@ function loadJSON(file){
   var r=new FileReader();
   r.onload=function(){
     try{
-      clearCloudSelection();
       applyState(JSON.parse(r.result));
     }catch(err){
       alert('読み込めませんでした：'+err.message);
@@ -2028,14 +2024,12 @@ window.addEventListener('drop',function(e){
 });
 
 /* ===== クラウド保存（Cloudflare D1） ===== */
-var cloudActiveId=null, cloudPlots=[], cloudTotal=0;
-var CLOUD_PAGE_SIZE=100;
 function cloudRequest(path,options){
   options=options||{};
   return fetch('/api/plots'+(path||''),options).then(function(r){
     if(r.status===204)return null;
     return r.json().catch(function(){return {};}).then(function(body){
-      if(!r.ok){var err=new Error(body.error||('HTTP '+r.status));err.code=body.error;err.status=r.status;throw err;}
+      if(!r.ok)throw new Error(body.error||('HTTP '+r.status));
       return body;
     });
   });
@@ -2048,58 +2042,32 @@ function cloudStatus(message,isError){
 function cloudDate(value){
   try{return new Date(value).toLocaleString('ja-JP');}catch(e){return value;}
 }
-function cloudErrorMessage(err){
-  if(err&&err.code==='duplicate_name')return '同じバンドに同名のプロファイルがあります。既存データを読み込んで上書きするか、別の名前を指定してください';
-  if(err&&err.code==='invalid_payload')return '配置図データが不正です。内容を確認してください';
-  return err.message;
-}
-function setCloudSelection(id,band,name){
-  cloudActiveId=id||null;
-  $('cloudUpdate').disabled=!cloudActiveId;
-  $('cloudSelection').textContent=cloudActiveId?('読込中：'+band+' / '+name):'新規プロファイルとして保存します';
-}
-function clearCloudSelection(){
-  if(!$('cloudSelection'))return;
-  setCloudSelection(null,'','');
-}
-function renderCloudList(){
-  var list=$('cloudList');
-  list.innerHTML='';
-  if(!cloudPlots.length){list.innerHTML='<div class="cloud-empty">まだ保存された配置図はありません</div>';return;}
-  var lastBand=null;
-  cloudPlots.forEach(function(plot){
-    if(plot.band!==lastBand){
-      var heading=document.createElement('div');heading.className='cloud-band';heading.textContent=plot.band;
-      list.appendChild(heading);lastBand=plot.band;
-    }
-    var row=document.createElement('div');row.className='cloud-item';
-    var info=document.createElement('div');info.className='cloud-info';
-    var title=document.createElement('b');title.textContent=plot.name;
-    var date=document.createElement('small');date.textContent='更新 '+cloudDate(plot.updated_at);
-    info.appendChild(title);info.appendChild(date);row.appendChild(info);
-    var load=document.createElement('button');load.className='btn';load.textContent='読込';
-    load.addEventListener('click',function(){loadCloudPlot(plot.id);});row.appendChild(load);
-    var del=document.createElement('button');del.className='btn danger';del.textContent='削除';
-    del.addEventListener('click',function(){deleteCloudPlot(plot.id,plot.name);});row.appendChild(del);
-    list.appendChild(row);
-  });
-  if(cloudPlots.length<cloudTotal){
-    var moreWrap=document.createElement('div');moreWrap.className='cloud-more';
-    var more=document.createElement('button');more.className='btn';more.textContent='さらに読み込む（'+cloudPlots.length+' / '+cloudTotal+'）';
-    more.addEventListener('click',function(){more.disabled=true;refreshCloudList(true);});
-    moreWrap.appendChild(more);list.appendChild(moreWrap);
-  }
-}
-function refreshCloudList(append){
-  if(!append){cloudPlots=[];cloudTotal=0;$('cloudList').innerHTML='<div class="cloud-empty">読み込み中…</div>';}
-  cloudRequest('?limit='+CLOUD_PAGE_SIZE+'&offset='+cloudPlots.length).then(function(body){
-    cloudPlots=cloudPlots.concat(body.plots||[]);
-    cloudTotal=body.total||cloudPlots.length;
-    renderCloudList();
+function refreshCloudList(){
+  $('cloudList').innerHTML='<div class="cloud-empty">読み込み中…</div>';
+  cloudRequest('').then(function(body){
+    var list=$('cloudList');
+    list.innerHTML='';
+    if(!body.plots.length){list.innerHTML='<div class="cloud-empty">まだ保存された配置図はありません</div>';return;}
+    var lastBand=null;
+    body.plots.forEach(function(plot){
+      if(plot.band!==lastBand){
+        var heading=document.createElement('div');heading.className='cloud-band';heading.textContent=plot.band;
+        list.appendChild(heading);lastBand=plot.band;
+      }
+      var row=document.createElement('div');row.className='cloud-item';
+      var info=document.createElement('div');info.className='cloud-info';
+      var title=document.createElement('b');title.textContent=plot.name;
+      var date=document.createElement('small');date.textContent='更新 '+cloudDate(plot.updated_at);
+      info.appendChild(title);info.appendChild(date);row.appendChild(info);
+      var load=document.createElement('button');load.className='btn';load.textContent='読込';
+      load.addEventListener('click',function(){loadCloudPlot(plot.id);});row.appendChild(load);
+      var del=document.createElement('button');del.className='btn danger';del.textContent='削除';
+      del.addEventListener('click',function(){deleteCloudPlot(plot.id,plot.name);});row.appendChild(del);
+      list.appendChild(row);
+    });
   }).catch(function(err){
-    if(!cloudPlots.length)$('cloudList').innerHTML='<div class="cloud-empty">一覧を取得できませんでした</div>';
-    else renderCloudList();
-    cloudStatus('エラー: '+cloudErrorMessage(err),true);
+    $('cloudList').innerHTML='<div class="cloud-empty">一覧を取得できませんでした</div>';
+    cloudStatus('エラー: '+err.message,true);
   });
 }
 function loadCloudPlot(id){
@@ -2108,39 +2076,33 @@ function loadCloudPlot(id){
     applyState(plot.data);
     $('cloudBandIn').value=plot.band;
     $('cloudNameIn').value=plot.name;
-    setCloudSelection(plot.id,plot.band,plot.name);
     cloudStatus('「'+plot.name+'」を読み込みました');
-  }).catch(function(err){cloudStatus('読込エラー: '+cloudErrorMessage(err),true);});
+  }).catch(function(err){cloudStatus('読込エラー: '+err.message,true);});
 }
 function deleteCloudPlot(id,name){
   if(!confirm('「'+name+'」をクラウドから削除しますか？'))return;
   cloudRequest('/'+encodeURIComponent(id),{method:'DELETE'}).then(function(){
-    if(id===cloudActiveId)clearCloudSelection();
-    cloudStatus('削除しました');refreshCloudList(false);
-  }).catch(function(err){cloudStatus('削除エラー: '+cloudErrorMessage(err),true);});
+    cloudStatus('削除しました');refreshCloudList();
+  }).catch(function(err){cloudStatus('削除エラー: '+err.message,true);});
 }
 $('cloudBtn').addEventListener('click',function(){
   $('cloudBandIn').value=localStorage.getItem('cameraPlotLastBand')||$('cloudBandIn').value;
-  $('cloudModal').classList.add('open');cloudStatus('');refreshCloudList(false);
+  $('cloudModal').classList.add('open');cloudStatus('');refreshCloudList();
 });
 $('cloudClose').addEventListener('click',function(){$('cloudModal').classList.remove('open');});
 $('cloudModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
-function saveCloudPlot(update){
+$('cloudSave').addEventListener('click',function(){
   var band=$('cloudBandIn').value.trim();
   var name=$('cloudNameIn').value.trim();
   if(!band){cloudStatus('バンド名を入力してください',true);$('cloudBandIn').focus();return;}
   if(!name){cloudStatus('配置図名を入力してください',true);$('cloudNameIn').focus();return;}
-  if(update&&!cloudActiveId){cloudStatus('上書きするプロファイルを一覧から読み込んでください',true);return;}
   localStorage.setItem('cameraPlotLastBand',band);
-  $('cloudSave').disabled=true;$('cloudUpdate').disabled=true;cloudStatus(update?'上書きしています…':'保存しています…');
-  var path=update?('/'+encodeURIComponent(cloudActiveId)):'';
-  cloudRequest(path,{method:update?'PUT':'POST',headers:{'content-type':'application/json'},body:JSON.stringify({band:band,name:name,data:currentState()})})
-    .then(function(result){setCloudSelection(result.id,band,name);cloudStatus(update?'クラウドを更新しました':'クラウドに新規保存しました');refreshCloudList(false);})
-    .catch(function(err){cloudStatus('保存エラー: '+cloudErrorMessage(err),true);})
-    .finally(function(){$('cloudSave').disabled=false;$('cloudUpdate').disabled=!cloudActiveId;});
-}
-$('cloudSave').addEventListener('click',function(){saveCloudPlot(false);});
-$('cloudUpdate').addEventListener('click',function(){saveCloudPlot(true);});
+  $('cloudSave').disabled=true;cloudStatus('保存しています…');
+  cloudRequest('',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({band:band,name:name,data:currentState()})})
+    .then(function(){cloudStatus('クラウドに保存しました');refreshCloudList();})
+    .catch(function(err){cloudStatus('保存エラー: '+err.message,true);})
+    .finally(function(){$('cloudSave').disabled=false;});
+});
 
 /* ===== キーボード ===== */
 window.addEventListener('keydown',function(e){
