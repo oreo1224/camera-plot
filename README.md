@@ -2,21 +2,18 @@
 
 Cloudflare Workers の Static Assets と D1 を使って、配置図をブラウザからクラウド保存できます。D1・Workers ともに小規模利用なら無料枠内で運用できます。
 
-## 初回セットアップ
+## 本番デプロイ
 
-Node.js 22 以降と Cloudflare アカウントが必要です。
+Node.js 22 以降と、設定済みの Cloudflare アカウントへのアクセス権が必要です。
+本番 D1 のアカウント・データベース ID は `wrangler.jsonc` に設定済みです。
 
 ```sh
 npx wrangler login
-npx wrangler d1 create camera-plot-db
-```
-
-表示された `database_id` を `wrangler.jsonc` のプレースホルダーと置き換え、テーブルを作成します。
-
-```sh
 npx wrangler d1 migrations apply camera-plot-db --remote
 npx wrangler deploy
 ```
+
+Static Assets は `.assetsignore` で `index.html` と `default-layout.json` のみに限定しています。
 
 ローカル開発では、ローカル D1 にマイグレーションを適用してから起動します。
 
