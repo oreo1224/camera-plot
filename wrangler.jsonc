@@ -22,6 +22,7 @@
     "production": {
       "name": "camera-plot",
       "account_id": "ed8894a9cc8527be3b803f6dd918f5a4",
+      "preview_urls": false,
       "d1_databases": [
         {
           "binding": "DB",

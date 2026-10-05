@@ -16,8 +16,18 @@ Static Assets は `.assetsignore` で `index.html` と `default-layout.json` の
 
 ## 本番デプロイ
 
-本番設定は `wrangler.jsonc` の `production` 環境に分離しています。本番操作には必ず `--env production` を指定します。
-PRブランチからはデプロイせず、変更を `main` にマージした後、更新済みの `main` から実行してください。
+本番設定は `wrangler.jsonc` の `production` 環境に分離しています。
+Cloudflare Workers Builds が `main` への更新を検知し、次の順で自動反映します。
+
+1. `npx wrangler d1 migrations apply DB --env production --remote`
+2. `npx wrangler deploy --env production`
+
+非本番ブランチのBuildは無効です。通常はPRを `main` にマージするだけで、D1マイグレーションとWorkerデプロイが実行されます。
+マイグレーションに失敗した場合はデプロイへ進みません。
+
+Cloudflare側のBuild設定を復旧する場合は、Build commandとDeploy commandに上記コマンドを設定し、Production branchを `main` にします。
+
+自動Buildを手動で再試行できない場合のみ、更新済みの `main` から次を実行します。
 
 ```sh
 git switch main
