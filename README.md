@@ -8,6 +8,7 @@ Node.js 22 以降が必要です。ローカル D1 にマイグレーション�
 トップレベル設定は `camera-plot-dev` と無効なゼロUUIDを使う開発専用設定で、本番リソースには接続しません。
 
 ```sh
+npm ci
 npx wrangler d1 migrations apply DB --local
 npx wrangler dev
 ```
@@ -24,6 +25,10 @@ Cloudflare Workers Builds が `main` への更新を検知し、次の順で自�
 
 非本番ブランチのBuildは無効です。通常はPRを `main` にマージするだけで、D1マイグレーションとWorkerデプロイが実行されます。
 マイグレーションに失敗した場合はデプロイへ進みません。
+
+D1マイグレーションとWorkerデプロイは一体のトランザクションではありません。マイグレーション成功後にデプロイが失敗すると、新しいスキーマ上で現在のWorkerが動き続けます。そのため、本番マイグレーションは、現在デプロイされているWorkerとの後方互換性を必ず維持してください。同じリリースで既存のテーブルやカラムを削除・改名するなどの破壊的変更は行わず、まず追加的な変更と新旧両方のスキーマに対応するWorkerをデプロイし、古いWorkerへ戻す必要がなくなった後のリリースで不要な要素を削除します。
+
+Workers Buildsで使うWranglerは `package.json` に完全なバージョンを指定し、`package-lock.json` で固定しています。Wranglerを更新する場合はlockfileも更新し、ローカルで検証してから反映してください。
 
 Cloudflare側のBuild設定を復旧する場合は、Build commandとDeploy commandに上記コマンドを設定し、Production branchを `main` にします。
 
